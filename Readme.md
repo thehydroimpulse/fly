@@ -1,4 +1,4 @@
-# Fly
+# Fly [![Build Status](https://travis-ci.org/thehydroimpulse/fly.svg)](https://travis-ci.org/thehydroimpulse/fly)
 
 Convergent Replicated Data Types in Rust.
 

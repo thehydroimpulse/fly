@@ -1,4 +1,6 @@
 [package]
 name = "fly"
 version = "0.1.0"
+license = "MIT"
+description = "Convergent Replicated Data Types in Rust"
 authors = ["Daniel Fagnan <dnfagnan@gmail.com>"]
