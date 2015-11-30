@@ -18,7 +18,7 @@ impl PnCounter {
 
     /// Return the value by merging both the add and sub
     /// together.
-    pub fn value(&self) -> GCounter {
+    pub fn to_gcounter(&self) -> GCounter {
         let mut counter = GCounter::new();
 
         for (k, v) in self.p.data.iter() {
@@ -73,7 +73,7 @@ mod tests {
         a.incr(1, 5);
         a.decr(1, 3);
 
-        let b = a.value();
+        let b = a.to_gcounter();
 
         assert_eq!(b.data.get(&1), Some(&2));
     }
@@ -93,6 +93,19 @@ mod tests {
     }
 
     #[test]
+    fn merge_and_get_gcounter() {
+        let mut a = PnCounter::new();
+        let mut b = PnCounter::new();
+
+        a.incr(1, 5);
+        b.decr(1, 3);
+
+        let c = a.merge(&b).to_gcounter();
+
+        assert_eq!(c.data.get(&1), Some(&2));
+    }
+
+    #[test]
     fn merge_and_get_value() {
         let mut a = PnCounter::new();
         let mut b = PnCounter::new();
@@ -102,6 +115,6 @@ mod tests {
 
         let c = a.merge(&b).value();
 
-        assert_eq!(c.data.get(&1), Some(&2));
+        assert_eq!(c, 2);
     }
 }
