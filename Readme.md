@@ -24,17 +24,30 @@ extern crate fly;
 G-Counters are the building blocks for eventually consistent counters. They can only be incremented, never decremented.
 
 ```rust
-// Let's create a new GCounter to track page views.
-let mut views = GCounter::new();
+// Let's create a new GCounter
+let mut counter = GCounter::new();
 ```
 
 We can then increment it:
 
 ```rust
-views.incr(1, 1);
+counter.incr(1, 1);
 ```
 
-The first argument is the current node or replica as a `u32` data type. Fly doesn't have any requirements as to what this value is derived from, it's only important that it's use is consistent (i.e., a replica uses the same id everywhere).
+The first argument is the current node or replica as a generic data type. Fly doesn't have any requirements as to what this value is derived from, it's only important that it's use is consistent (i.e., a replica uses the same id everywhere).
+
+The generic replica id is bound to the following constraints:
+
+```rust
+Eq + Hash + Copy + Clone
+```
+
+Example replica ids:
+
+```rust
+counter.incr("node1".to_string(), 5);
+counter.incr(Uuid::new_v4(), 4);
+```
 
 The second argument is the delta &mdash; how much we want to increment the counter.
 
