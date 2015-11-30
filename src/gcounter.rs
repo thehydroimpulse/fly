@@ -1,20 +1,24 @@
 use std::collections::HashMap;
 use crdt::Crdt;
 use counter::Counter;
+use std::hash::Hash;
 
-#[derive(Debug)]
-pub struct GCounter {
-    pub data: HashMap<u32, u64>
+pub struct GCounter<N> {
+    pub data: HashMap<N, u64>
 }
 
-impl GCounter {
-    pub fn new() -> GCounter {
+impl<N> GCounter<N>
+    where N: Eq + Hash + Clone + Copy
+{
+    pub fn new() -> GCounter<N> {
         GCounter { data: HashMap::new() }
     }
 }
 
-impl Counter for GCounter {
-    fn incr(&mut self, node: u32, delta: u64) {
+impl<N> Counter<N> for GCounter<N>
+    where N: Eq + Hash + Clone + Copy
+{
+    fn incr(&mut self, node: N, delta: u64) {
         if self.data.contains_key(&node) {
             if let Some(key) = self.data.get_mut(&node) {
                 *key += delta;
@@ -35,8 +39,10 @@ impl Counter for GCounter {
     }
 }
 
-impl Crdt for GCounter {
-    fn merge(&self, other: &GCounter) -> GCounter {
+impl<N> Crdt for GCounter<N>
+    where N: Eq + Hash + Clone + Copy
+{
+    fn merge(&self, other: &GCounter<N>) -> GCounter<N> {
         let mut cloned = other.data.clone();
 
         for (node, delta) in self.data.iter() {

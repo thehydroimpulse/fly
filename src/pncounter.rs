@@ -1,15 +1,17 @@
 use gcounter::GCounter;
 use counter::Counter;
 use crdt::Crdt;
+use std::hash::Hash;
 
-#[derive(Debug)]
-pub struct PnCounter {
-    p: GCounter,
-    n: GCounter
+pub struct PnCounter<N> {
+    p: GCounter<N>,
+    n: GCounter<N>
 }
 
-impl PnCounter {
-    pub fn new() -> PnCounter {
+impl<N> PnCounter<N>
+    where N: Eq + Hash + Clone + Copy
+{
+    pub fn new() -> PnCounter<N> {
         PnCounter {
             p: GCounter::new(),
             n: GCounter::new()
@@ -18,7 +20,7 @@ impl PnCounter {
 
     /// Return the value by merging both the add and sub
     /// together.
-    pub fn to_gcounter(&self) -> GCounter {
+    pub fn to_gcounter(&self) -> GCounter<N> {
         let mut counter = GCounter::new();
 
         for (k, v) in self.p.data.iter() {
@@ -34,12 +36,14 @@ impl PnCounter {
     }
 }
 
-impl Counter for PnCounter {
-    fn incr(&mut self, node: u32, delta: u64) {
+impl<N> Counter<N> for PnCounter<N>
+    where N: Eq + Hash + Clone + Copy
+{
+    fn incr(&mut self, node: N, delta: u64) {
         self.p.incr(node, delta);
     }
 
-    fn decr(&mut self, node: u32, delta: u64) {
+    fn decr(&mut self, node: N, delta: u64) {
         self.n.incr(node, delta);
     }
 
@@ -49,8 +53,10 @@ impl Counter for PnCounter {
     }
 }
 
-impl Crdt for PnCounter {
-    fn merge(&self, other: &PnCounter) -> PnCounter {
+impl<N> Crdt for PnCounter<N>
+    where N: Eq + Hash + Clone + Copy
+{
+    fn merge(&self, other: &PnCounter<N>) -> PnCounter<N> {
         // Merge each g-counter individually.
         PnCounter {
             p: self.p.merge(&other.p),
